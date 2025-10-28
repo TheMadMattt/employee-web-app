@@ -1,5 +1,7 @@
 import {AfterViewInit, Component, forwardRef, Injector, Input} from '@angular/core';
 import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
+import {max} from 'rxjs';
+import {translations} from '../../common/translations';
 
 @Component({
   selector: 'app-text-input',
@@ -19,6 +21,9 @@ export class TextInput implements AfterViewInit, ControlValueAccessor {
   @Input() label!: string;
   @Input() placeholder = '';
   @Input() required = false;
+  @Input() maxLength?: number
+
+  t = translations;
 
   control?: FormControl;
 
@@ -77,17 +82,17 @@ export class TextInput implements AfterViewInit, ControlValueAccessor {
     }
 
     if (this.control.errors['required']) {
-      return 'To pole jest wymagane';
+      return this.t['REQUIRED_FIELD'];
     }
 
     if (this.control.errors['minlength']) {
       const minLength = this.control.errors['minlength'].requiredLength;
-      return `Minimalna długość to ${minLength} ${minLength === 1 ? 'znak' : 'znaki'}`;
+      return this.t['MIN_LENGTH']+`${minLength}`;
     }
 
     if (this.control.errors['maxlength']) {
       const maxLength = this.control.errors['maxlength'].requiredLength;
-      return `Maksymalna długość to ${maxLength} znaków`;
+      return this.t['MAX_LENGTH']+`${maxLength}`;
     }
 
     return '';

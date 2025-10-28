@@ -1,7 +1,7 @@
 <div class="form-group">
   <label [for]="id" class="form-label">
     {{ label }}
-    @if (required){
+    @if (required) {
       <span class="required">*</span>
     }
   </label>
@@ -16,9 +16,15 @@
     class="form-control"
     [class.error]="hasError"
   />
-  @if (errorMessage) {
-    <div class="error-message">
-      {{ errorMessage }}
-    </div>
-  }
+  <div class="input-footer">
+    @if (errorMessage) {
+      <div class="error-message">
+        {{ errorMessage }}
+      </div>
+    } @else {
+      <div class="character-count">
+        {{ value.length }}/{{ maxLength }}
+      </div>
+    }
+  </div>
 </div>

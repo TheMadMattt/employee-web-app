@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import {translations} from './shared/common/translations';
 
 describe('App', () => {
   beforeEach(async () => {
@@ -18,6 +19,6 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, employee-app');
+    expect(compiled.querySelector('h1')?.textContent).toContain(translations['APP_TITLE']);
   });
 });

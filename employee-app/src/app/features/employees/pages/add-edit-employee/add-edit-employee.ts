@@ -16,8 +16,7 @@ import {translations} from '../../../../shared/common/translations';
     TextInput
   ],
   templateUrl: './add-edit-employee.html',
-  styleUrl: './add-edit-employee.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './add-edit-employee.scss'
 })
 export class AddEditEmployee  implements OnInit {
   employeeForm!: FormGroup;
@@ -47,10 +46,6 @@ export class AddEditEmployee  implements OnInit {
 
   get title(): string {
     return this.isEditMode ? this.t['EDIT_EMPLOYEE'] : this.t['ADD_NEW_EMPLOYEE'];
-  }
-
-  get f() {
-    return this.employeeForm.controls;
   }
 
   private initForm(): void {
