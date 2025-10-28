@@ -1,0 +1,79 @@
+<div class="employee-list-container">
+  <div class="list-header">
+    <h2>Lista Pracowników</h2>
+    <a routerLink="/employees/add" class="btn btn-primary">
+      <span class="icon">+</span> Dodaj Pracownika
+    </a>
+  </div>
+
+  <div class="search-container">
+    <input
+      type="text"
+      [(ngModel)]="searchTerm"
+      (ngModelChange)="onSearchChange()"
+      placeholder="Szukaj po imieniu lub nazwisku..."
+      class="search-input"
+    />
+  </div>
+
+  <div class="table-container">
+    <table class="employee-table">
+      <thead>
+      <tr>
+        <th (click)="onSort('registrationNumber')" class="sortable">
+          Numer ewidencyjny <span class="sort-icon">{{ getSortIcon('registrationNumber') }}</span>
+        </th>
+        <th (click)="onSort('firstName')" class="sortable">
+          Imię <span class="sort-icon">{{ getSortIcon('firstName') }}</span>
+        </th>
+        <th (click)="onSort('lastName')" class="sortable">
+          Nazwisko <span class="sort-icon">{{ getSortIcon('lastName') }}</span>
+        </th>
+        <th (click)="onSort('gender')" class="sortable">
+          Płeć <span class="sort-icon">{{ getSortIcon('gender') }}</span>
+        </th>
+        <th class="actions-column">Akcje</th>
+      </tr>
+      </thead>
+      <tbody>
+        @for (employee of filteredEmployees; track employee.id) {
+          <tr class="employee-row">
+            <td>{{ employee.registrationNumber }}</td>
+            <td>{{ employee.firstName }}</td>
+            <td>{{ employee.lastName }}</td>
+            <td>{{ genderLabels[employee.gender] }}</td>
+            <td class="actions-cell">
+              <a
+                [routerLink]="['/employees/edit', employee.id]"
+                class="btn btn-edit"
+                title="Edytuj"
+              >
+                Edytuj
+              </a>
+              <button
+                (click)="onDelete(employee)"
+                class="btn btn-delete"
+                title="Usuń"
+              >
+                Usuń
+              </button>
+            </td>
+          </tr>
+        }
+        @if (filteredEmployees.length === 0) {
+          <tr>
+            <td colspan="5" class="no-results">
+              {{ searchTerm ? 'Nie znaleziono pracowników spełniających kryteria wyszukiwania' : 'Brak pracowników' }}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (filteredEmployees.length > 0) {
+    <div class="results-count">
+      Wyświetlono {{ filteredEmployees.length }} z {{ employees.length }} pracowników
+    </div>
+  }
+</div>

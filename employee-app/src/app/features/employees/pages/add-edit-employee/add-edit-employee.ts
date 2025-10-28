@@ -1,0 +1,173 @@
+import {Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
+import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {EmployeeService} from '../../services/employee.service';
+import {Subject} from 'rxjs';
+import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import {Gender, GENDER_LABELS} from '../../models/employee';
+import {TextInput} from '../../../../shared/inputs/text-input/text-input';
+
+@Component({
+  selector: 'app-add-edit-employee',
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    TextInput
+  ],
+  templateUrl: './add-edit-employee.html',
+  styleUrl: './add-edit-employee.scss'
+})
+export class AddEditEmployee  implements OnInit {
+  employeeForm!: FormGroup;
+  isEditMode = false;
+  employeeId?: number;
+  isSubmitting = false;
+
+  readonly genderOptions = [
+    { value: Gender.MALE, label: GENDER_LABELS[Gender.MALE] },
+    { value: Gender.FEMALE, label: GENDER_LABELS[Gender.FEMALE] },
+    { value: Gender.OTHER, label: GENDER_LABELS[Gender.OTHER] }
+  ];
+
+  private destroyRef = inject(DestroyRef);
+
+  constructor(
+    private fb: FormBuilder,
+    private employeeService: EmployeeService,
+    private router: Router,
+    private route: ActivatedRoute
+  ) {}
+
+  ngOnInit(): void {
+    this.initForm();
+    this.checkEditMode();
+  }
+
+  get title(): string {
+    return this.isEditMode ? 'Edytuj Pracownika' : 'Dodaj Nowego Pracownika';
+  }
+
+  get f() {
+    return this.employeeForm.controls;
+  }
+
+  private initForm(): void {
+    this.employeeForm = this.fb.group({
+      firstName: ['', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(50)
+      ]],
+      lastName: ['', [
+        Validators.required,
+        Validators.minLength(1),
+        Validators.maxLength(50)
+      ]],
+      gender: [Gender.MALE, Validators.required]
+    });
+  }
+
+  private checkEditMode(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+
+    if (id) {
+      this.isEditMode = true;
+      this.employeeId = parseInt(id, 10);
+      this.loadEmployee();
+    }
+  }
+
+  private loadEmployee(): void {
+    if (!this.employeeId) return;
+
+    this.employeeService.getEmployeeById(this.employeeId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(employee => {
+        if (employee) {
+          this.employeeForm.patchValue({
+            firstName: employee.firstName,
+            lastName: employee.lastName,
+            gender: employee.gender
+          });
+        } else {
+          alert('Nie znaleziono pracownika');
+          this.router.navigate(['/employees']);
+        }
+      });
+  }
+
+  onSubmit(): void {
+    if (this.employeeForm.invalid || this.isSubmitting) {
+      Object.keys(this.employeeForm.controls).forEach(key => {
+        this.employeeForm.controls[key].markAsTouched();
+      });
+      return;
+    }
+
+    this.isSubmitting = true;
+    const formData = this.employeeForm.value;
+
+    if (this.isEditMode && this.employeeId) {
+      this.employeeService.updateEmployee(this.employeeId, formData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (employee) => {
+            if (employee) {
+              this.router.navigate(['/employees']);
+            } else {
+              alert('Błąd podczas aktualizacji pracownika');
+              this.isSubmitting = false;
+            }
+          },
+          error: () => {
+            alert('Błąd podczas aktualizacji pracownika');
+            this.isSubmitting = false;
+          }
+        });
+    } else {
+      this.employeeService.addEmployee(formData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            this.router.navigate(['/employees']);
+          },
+          error: () => {
+            alert('Błąd podczas dodawania pracownika');
+            this.isSubmitting = false;
+          }
+        });
+    }
+  }
+
+  onCancel(): void {
+    if (this.employeeForm.dirty) {
+      if (confirm('Masz niezapisane zmiany. Czy na pewno chcesz anulować?')) {
+        this.router.navigate(['/employees']);
+      }
+    } else {
+      this.router.navigate(['/employees']);
+    }
+  }
+
+  getErrorMessage(fieldName: string): string {
+    const control = this.employeeForm.get(fieldName);
+
+    if (!control || !control.touched || !control.errors) {
+      return '';
+    }
+
+    if (control.errors['required']) {
+      return 'To pole jest wymagane';
+    }
+
+    if (control.errors['minlength']) {
+      return `Minimalna długość to ${control.errors['minlength'].requiredLength} znak`;
+    }
+
+    if (control.errors['maxlength']) {
+      return `Maksymalna długość to ${control.errors['maxlength'].requiredLength} znaków`;
+    }
+
+    return '';
+  }
+}

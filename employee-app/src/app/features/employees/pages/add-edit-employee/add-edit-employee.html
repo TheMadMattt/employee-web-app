@@ -1,0 +1,79 @@
+<div class="form-page">
+  <div class="form-content">
+    <div class="form-container">
+      <div class="form-header">
+        <h2>{{ title }}</h2>
+        <a routerLink="/employees" class="back-link">← Powrót do listy</a>
+      </div>
+
+      <div class="form-scroll-area">
+        <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="employee-form">
+          <app-text-input
+            id="firstName"
+            label="Imię"
+            placeholder="Wprowadź imię"
+            [required]="true"
+            formControlName="firstName"
+          ></app-text-input>
+
+          <app-text-input
+            id="lastName"
+            label="Nazwisko"
+            placeholder="Wprowadź nazwisko"
+            [required]="true"
+            formControlName="lastName"
+          ></app-text-input>
+
+          <div class="form-group">
+            <label class="form-label">
+              Płeć <span class="required">*</span>
+            </label>
+            <div class="radio-group">
+              @for (option of genderOptions; track option.value) {
+                <label class="radio-label">
+                  <input
+                    type="radio"
+                    [value]="option.value"
+                    formControlName="gender"
+                    class="radio-input"
+                  />
+                  <span class="radio-text">{{ option.label }}</span>
+                </label>
+              }
+            </div>
+            @let genderErrorMessage = getErrorMessage('gender');
+            @if (genderErrorMessage) {
+              <div class="error-message">
+                {{ genderErrorMessage }}
+              </div>
+            }
+          </div>
+        </form>
+      </div>
+
+      <div class="form-footer">
+        <div class="form-actions">
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="btn btn-secondary"
+            [disabled]="isSubmitting"
+          >
+            Anuluj
+          </button>
+          <button
+            type="submit"
+            (click)="onSubmit()"
+            class="btn btn-primary"
+            [disabled]="isSubmitting"
+          >
+            {{ isSubmitting ? 'Zapisywanie...' : (isEditMode ? 'Zapisz zmiany' : 'Dodaj pracownika') }}
+          </button>
+        </div>
+        <div class="copyright">
+          <p>&copy; 2025 System Zarządzania Pracownikami. Wszystkie prawa zastrzeżone.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
