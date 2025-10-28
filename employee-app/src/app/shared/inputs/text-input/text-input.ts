@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, forwardRef, Injector, Input} from '@angular/core';
+import {AfterViewInit, Component, computed, effect, forwardRef, Injector, Input, signal} from '@angular/core';
 import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
 import {max} from 'rxjs';
 import {translations} from '../../common/translations';
@@ -70,31 +70,5 @@ export class TextInput implements AfterViewInit, ControlValueAccessor {
   onBlur(): void {
     this.touched = true;
     this.onTouched();
-  }
-
-  get hasError(): boolean {
-    return this.control ? (this.control.touched && this.control.invalid) : false;
-  }
-
-  get errorMessage(): string {
-    if (!this.control || !this.control.touched || !this.control.errors) {
-      return '';
-    }
-
-    if (this.control.errors['required']) {
-      return this.t['REQUIRED_FIELD'];
-    }
-
-    if (this.control.errors['minlength']) {
-      const minLength = this.control.errors['minlength'].requiredLength;
-      return this.t['MIN_LENGTH']+`${minLength}`;
-    }
-
-    if (this.control.errors['maxlength']) {
-      const maxLength = this.control.errors['maxlength'].requiredLength;
-      return this.t['MAX_LENGTH']+`${maxLength}`;
-    }
-
-    return '';
   }
 }

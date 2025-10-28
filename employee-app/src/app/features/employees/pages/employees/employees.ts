@@ -17,8 +17,7 @@ type SortDirection = 'asc' | 'desc';
     RouterLink
   ],
   templateUrl: './employees.html',
-  styleUrl: './employees.scss',
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrl: './employees.scss'
 })
 export class Employees implements OnInit {
   employees: Employee[] = [];
@@ -34,8 +33,14 @@ export class Employees implements OnInit {
     return '';
   })
   searchTerm = '';
-  sortField: SortField = 'registrationNumber';
-  sortDirection: SortDirection = 'asc';
+  sortField = signal<SortField>('registrationNumber');
+  sortDirection = signal<SortDirection>('asc');
+
+  sortIconRegistrationNumber = computed(() => this.getSortIconValue('registrationNumber'));
+  sortIconFirstName = computed(() => this.getSortIconValue('firstName'));
+  sortIconLastName = computed(() => this.getSortIconValue('lastName'));
+  sortIconGender = computed(() => this.getSortIconValue('gender'));
+
   t = translations;
   isLoading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
@@ -72,18 +77,18 @@ export class Employees implements OnInit {
   }
 
   onSort(field: SortField): void {
-    if (this.sortField === field) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+    if (this.sortField() === field) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
     } else {
-      this.sortField = field;
-      this.sortDirection = 'asc';
+      this.sortField.set(field);
+      this.sortDirection.set('asc');
     }
     this.applyFiltersAndSort();
   }
 
-  getSortIcon(field: SortField): string {
-    if (this.sortField !== field) return '↕';
-    return this.sortDirection === 'asc' ? '↑' : '↓';
+  private getSortIconValue(field: SortField): string {
+    if (this.sortField() !== field) return '↕';
+    return this.sortDirection() === 'asc' ? '↑' : '↓';
   }
 
   onDelete(employee: Employee): void {
@@ -117,7 +122,7 @@ export class Employees implements OnInit {
     result.sort((a, b) => {
       let compareValue = 0;
 
-      switch (this.sortField) {
+      switch (this.sortField()) {
         case 'registrationNumber':
           compareValue = a.registrationNumber.localeCompare(b.registrationNumber);
           break;
@@ -132,7 +137,7 @@ export class Employees implements OnInit {
           break;
       }
 
-      return this.sortDirection === 'asc' ? compareValue : -compareValue;
+      return this.sortDirection() === 'asc' ? compareValue : -compareValue;
     });
 
     this.filteredEmployees.set(result);

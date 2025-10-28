@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {EmployeeService} from '../../services/employee.service';
@@ -20,7 +20,7 @@ import {translations} from '../../../../shared/common/translations';
 })
 export class AddEditEmployee  implements OnInit {
   employeeForm!: FormGroup;
-  isEditMode = false;
+  isEditMode = signal<boolean>(false);
   employeeId?: number;
   isSubmitting = false;
   t = translations;
@@ -29,6 +29,13 @@ export class AddEditEmployee  implements OnInit {
     { value: Gender.MALE, label: GENDER_LABELS[Gender.MALE] },
     { value: Gender.FEMALE, label: GENDER_LABELS[Gender.FEMALE] }
   ];
+
+  min = 1;
+  max = 50;
+
+  title = computed(() => {
+    return this.isEditMode() ? this.t['EDIT_EMPLOYEE'] : this.t['ADD_NEW_EMPLOYEE'];
+  });
 
   private destroyRef = inject(DestroyRef);
 
@@ -44,23 +51,19 @@ export class AddEditEmployee  implements OnInit {
     this.checkEditMode();
   }
 
-  get title(): string {
-    return this.isEditMode ? this.t['EDIT_EMPLOYEE'] : this.t['ADD_NEW_EMPLOYEE'];
-  }
-
   private initForm(): void {
     this.employeeForm = this.fb.group({
       firstName: ['', [
         Validators.required,
-        Validators.minLength(1),
-        Validators.maxLength(50)
+        Validators.minLength(this.min),
+        Validators.maxLength(this.max)
       ]],
       lastName: ['', [
         Validators.required,
-        Validators.minLength(1),
-        Validators.maxLength(50)
+        Validators.minLength(this.min),
+        Validators.maxLength(this.max)
       ]],
-      gender: [Gender.MALE, Validators.required]
+      gender: [Gender.MALE]
     });
   }
 
@@ -68,7 +71,7 @@ export class AddEditEmployee  implements OnInit {
     const id = this.route.snapshot.paramMap.get('id');
 
     if (id) {
-      this.isEditMode = true;
+      this.isEditMode.set(true);
       this.employeeId = parseInt(id, 10);
       this.loadEmployee();
     }
@@ -95,16 +98,14 @@ export class AddEditEmployee  implements OnInit {
 
   onSubmit(): void {
     if (this.employeeForm.invalid || this.isSubmitting) {
-      Object.keys(this.employeeForm.controls).forEach(key => {
-        this.employeeForm.controls[key].markAsTouched();
-      });
+      this.employeeForm.markAllAsDirty();
       return;
     }
 
     this.isSubmitting = true;
     const formData = this.employeeForm.value;
 
-    if (this.isEditMode && this.employeeId) {
+    if (this.isEditMode() && this.employeeId) {
       this.employeeService.updateEmployee(this.employeeId, formData)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
@@ -138,27 +139,5 @@ export class AddEditEmployee  implements OnInit {
 
   onCancel(): void {
     this.router.navigate(['/employees']);
-  }
-
-  getErrorMessage(fieldName: string): string {
-    const control = this.employeeForm.get(fieldName);
-
-    if (!control || !control.touched || !control.errors) {
-      return '';
-    }
-
-    if (control.errors['required']) {
-      return this.t['REQUIRED_FIELD'];
-    }
-
-    if (control.errors['minlength']) {
-      return this.t['MIN_LENGTH']+`${control.errors['minlength'].requiredLength}`;
-    }
-
-    if (control.errors['maxlength']) {
-      return this.t['MAX_LENGTH']+`${control.errors['maxlength'].requiredLength}`;
-    }
-
-    return '';
   }
 }

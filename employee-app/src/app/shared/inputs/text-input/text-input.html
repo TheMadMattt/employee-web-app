@@ -14,13 +14,28 @@
     [disabled]="disabled"
     [placeholder]="placeholder"
     class="form-control"
-    [class.error]="hasError"
+    [class.error]="control?.errors && control?.dirty"
   />
   <div class="input-footer">
-    @if (errorMessage) {
-      <div class="error-message">
-        {{ errorMessage }}
-      </div>
+    @if (control?.errors && control?.dirty) {
+      @let errors = control?.errors;
+      @if (errors) {
+        <div class="error-message">
+          @if (errors['required']) {
+            {{ this.t['REQUIRED_FIELD'] }}
+          }
+
+          @if (errors['minlength']) {
+            @let minLength = errors['minlength'].requiredLength;
+            {{ this.t['MIN_LENGTH'] + `${minLength}` }}
+          }
+
+          @if (errors['maxlength']) {
+            @let maxLength = errors['maxlength'].requiredLength;
+            {{ this.t['MAX_LENGTH'] + `${maxLength}` }}
+          }
+        </div>
+      }
     } @else {
       <div class="character-count">
         {{ value.length }}/{{ maxLength }}

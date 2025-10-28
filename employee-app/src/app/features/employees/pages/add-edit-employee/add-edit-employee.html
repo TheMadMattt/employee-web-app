@@ -2,7 +2,7 @@
   <div class="form-content">
     <div class="form-container">
       <div class="form-header">
-        <h2>{{ title }}</h2>
+        <h2>{{ title() }}</h2>
         <a routerLink="/employees" class="back-link">← {{ t['BACK_TO_EMPLOYEES'] }}</a>
       </div>
 
@@ -13,7 +13,7 @@
             [label]="t['NAME']"
             [placeholder]="t['NAME_INPUT']"
             [required]="true"
-            [maxLength]="50"
+            [maxLength]="max"
             formControlName="firstName"
           ></app-text-input>
 
@@ -22,7 +22,7 @@
             [label]="t['LAST_NAME']"
             [placeholder]="t['LAST_NAME_INPUT']"
             [required]="true"
-            [maxLength]="50"
+            [maxLength]="max"
             formControlName="lastName"
           ></app-text-input>
 
@@ -43,12 +43,6 @@
                 </label>
               }
             </div>
-            @let genderErrorMessage = getErrorMessage('gender');
-            @if (genderErrorMessage) {
-              <div class="error-message">
-                {{ genderErrorMessage }}
-              </div>
-            }
           </div>
         </form>
       </div>
@@ -69,7 +63,7 @@
             class="btn btn-primary"
             [disabled]="isSubmitting"
           >
-            {{ isSubmitting ? t['SAVING'] : (isEditMode ? t['SAVE'] : t['ADD_EMPLOYEE']) }}
+            {{ isSubmitting ? t['SAVING'] : (isEditMode() ? t['SAVE'] : t['ADD_EMPLOYEE']) }}
           </button>
         </div>
         <div class="copyright">

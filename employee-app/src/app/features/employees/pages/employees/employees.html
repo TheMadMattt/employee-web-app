@@ -29,16 +29,16 @@
         <thead>
         <tr>
           <th (click)="onSort('registrationNumber')" class="sortable">
-            {{ t['REGISTRATION_NUMBER'] }} <span class="sort-icon">{{ getSortIcon('registrationNumber') }}</span>
+            {{ t['REGISTRATION_NUMBER'] }} <span class="sort-icon">{{ sortIconRegistrationNumber() }}</span>
           </th>
           <th (click)="onSort('firstName')" class="sortable">
-            {{ t['NAME'] }} <span class="sort-icon">{{ getSortIcon('firstName') }}</span>
+            {{ t['NAME'] }} <span class="sort-icon">{{ sortIconFirstName() }}</span>
           </th>
           <th (click)="onSort('lastName')" class="sortable">
-            {{ t['LAST_NAME'] }} <span class="sort-icon">{{ getSortIcon('lastName') }}</span>
+            {{ t['LAST_NAME'] }} <span class="sort-icon">{{ sortIconLastName() }}</span>
           </th>
           <th (click)="onSort('gender')" class="sortable">
-            {{ t['GENDER'] }} <span class="sort-icon">{{ getSortIcon('gender') }}</span>
+            {{ t['GENDER'] }} <span class="sort-icon">{{ sortIconGender() }}</span>
           </th>
           <th class="actions-column">{{ t['ACTIONS'] }}</th>
         </tr>
