@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, computed, effect, forwardRef, Injector, Input, signal} from '@angular/core';
+import {AfterViewInit, ChangeDetectorRef, Component, computed, effect, forwardRef, Injector, Input, signal} from '@angular/core';
 import {ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, NgControl} from '@angular/forms';
 import {max} from 'rxjs';
 import {translations} from '../../common/translations';
@@ -34,12 +34,13 @@ export class TextInput implements AfterViewInit, ControlValueAccessor {
   onChange: any = () => {};
   onTouched: any = () => {};
 
-  constructor(private injector: Injector) { }
+  constructor(private injector: Injector, private cdr: ChangeDetectorRef) { }
 
   ngAfterViewInit(): void {
     const ngControl: NgControl | null = this.injector.get(NgControl, null);
     if (ngControl) {
       this.control = ngControl.control as FormControl;
+      this.cdr.detectChanges();
     } else {
       console.error('Missing control');
     }
