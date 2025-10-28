@@ -3,30 +3,30 @@
     <div class="form-container">
       <div class="form-header">
         <h2>{{ title }}</h2>
-        <a routerLink="/employees" class="back-link">← Powrót do listy</a>
+        <a routerLink="/employees" class="back-link">← {{ t['BACK_TO_EMPLOYEES'] }}</a>
       </div>
 
       <div class="form-scroll-area">
         <form [formGroup]="employeeForm" (ngSubmit)="onSubmit()" class="employee-form">
           <app-text-input
             id="firstName"
-            label="Imię"
-            placeholder="Wprowadź imię"
+            [label]="t['NAME']"
+            [placeholder]="t['NAME_INPUT']"
             [required]="true"
             formControlName="firstName"
           ></app-text-input>
 
           <app-text-input
             id="lastName"
-            label="Nazwisko"
-            placeholder="Wprowadź nazwisko"
+            [label]="t['LAST_NAME']"
+            [placeholder]="t['LAST_NAME_INPUT']"
             [required]="true"
             formControlName="lastName"
           ></app-text-input>
 
           <div class="form-group">
             <label class="form-label">
-              Płeć <span class="required">*</span>
+              {{ t['GENDER'] }} <span class="required">*</span>
             </label>
             <div class="radio-group">
               @for (option of genderOptions; track option.value) {
@@ -59,7 +59,7 @@
             class="btn btn-secondary"
             [disabled]="isSubmitting"
           >
-            Anuluj
+            {{ t['CANCEL'] }}
           </button>
           <button
             type="submit"
@@ -67,11 +67,11 @@
             class="btn btn-primary"
             [disabled]="isSubmitting"
           >
-            {{ isSubmitting ? 'Zapisywanie...' : (isEditMode ? 'Zapisz zmiany' : 'Dodaj pracownika') }}
+            {{ isSubmitting ? t['SAVING'] : (isEditMode ? t['SAVE'] : t['ADD_EMPLOYEE']) }}
           </button>
         </div>
         <div class="copyright">
-          <p>&copy; 2025 System Zarządzania Pracownikami. Wszystkie prawa zastrzeżone.</p>
+          <p>&copy; 2025 System Zarządzania Pracownikami.</p>
         </div>
       </div>
     </div>

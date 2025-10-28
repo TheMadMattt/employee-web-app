@@ -1,7 +1,8 @@
+import {translations} from '../../../shared/common/translations';
+
 export enum Gender {
   MALE = 'MALE',
-  FEMALE = 'FEMALE',
-  OTHER = 'OTHER'
+  FEMALE = 'FEMALE'
 }
 
 export interface Employee {
@@ -19,7 +20,6 @@ export interface EmployeeFormData {
 }
 
 export const GENDER_LABELS: Record<Gender, string> = {
-  [Gender.MALE]: 'Mężczyzna',
-  [Gender.FEMALE]: 'Kobieta',
-  [Gender.OTHER]: 'Inne'
+  [Gender.MALE]: translations['MALE'],
+  [Gender.FEMALE]: translations['FEMALE']
 };

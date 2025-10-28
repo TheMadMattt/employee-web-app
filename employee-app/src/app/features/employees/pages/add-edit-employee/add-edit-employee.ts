@@ -6,6 +6,7 @@ import {Subject} from 'rxjs';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {Gender, GENDER_LABELS} from '../../models/employee';
 import {TextInput} from '../../../../shared/inputs/text-input/text-input';
+import {translations} from '../../../../shared/common/translations';
 
 @Component({
   selector: 'app-add-edit-employee',
@@ -22,11 +23,11 @@ export class AddEditEmployee  implements OnInit {
   isEditMode = false;
   employeeId?: number;
   isSubmitting = false;
+  t = translations;
 
   readonly genderOptions = [
     { value: Gender.MALE, label: GENDER_LABELS[Gender.MALE] },
-    { value: Gender.FEMALE, label: GENDER_LABELS[Gender.FEMALE] },
-    { value: Gender.OTHER, label: GENDER_LABELS[Gender.OTHER] }
+    { value: Gender.FEMALE, label: GENDER_LABELS[Gender.FEMALE] }
   ];
 
   private destroyRef = inject(DestroyRef);
@@ -44,7 +45,7 @@ export class AddEditEmployee  implements OnInit {
   }
 
   get title(): string {
-    return this.isEditMode ? 'Edytuj Pracownika' : 'Dodaj Nowego Pracownika';
+    return this.isEditMode ? this.t['EDIT_EMPLOYEE'] : this.t['ADD_NEW_EMPLOYEE'];
   }
 
   get f() {

@@ -40,7 +40,7 @@ export class EmployeeService {
       registrationNumber: '00000005',
       firstName: 'Alex',
       lastName: 'Smith',
-      gender: Gender.OTHER
+      gender: Gender.MALE
     },
   ];
 

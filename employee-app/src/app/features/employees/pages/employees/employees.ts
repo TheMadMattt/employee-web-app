@@ -1,9 +1,10 @@
-import {Component, DestroyRef, inject, OnInit} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {Employee, GENDER_LABELS} from '../../models/employee';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {EmployeeService} from '../../services/employee.service';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
+import {translations} from '../../../../shared/common/translations';
 
 type SortField = 'registrationNumber' | 'firstName' | 'lastName' | 'gender';
 type SortDirection = 'asc' | 'desc';
@@ -19,10 +20,21 @@ type SortDirection = 'asc' | 'desc';
 })
 export class Employees implements OnInit {
   employees: Employee[] = [];
-  filteredEmployees: Employee[] = [];
+  filteredEmployees = signal<Employee[]>([]);
+  employeesResultText = computed(() => {
+    if (this.filteredEmployees().length > 0) {
+      let translation = this.t['EMPLOYEES_RESULT_TEXT'];
+      translation = translation.replace('{0}', this.filteredEmployees().length.toString())
+        .replace('{1}', this.employees.length.toString());
+
+      return translation;
+    }
+    return '';
+  })
   searchTerm = '';
   sortField: SortField = 'registrationNumber';
   sortDirection: SortDirection = 'asc';
+  t = translations;
 
   readonly genderLabels = GENDER_LABELS;
   private destroyRef = inject(DestroyRef);
@@ -59,7 +71,7 @@ export class Employees implements OnInit {
   }
 
   onDelete(employee: Employee): void {
-    if (confirm(`Czy na pewno chcesz usunąć pracownika ${employee.firstName} ${employee.lastName}?`)) {
+    if (confirm(this.t['DELETE_EMPLOYEE_QUESTION']+`${employee.firstName} ${employee.lastName}?`)) {
       this.employeeService.deleteEmployee(employee.id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe();
@@ -98,6 +110,6 @@ export class Employees implements OnInit {
       return this.sortDirection === 'asc' ? compareValue : -compareValue;
     });
 
-    this.filteredEmployees = result;
+    this.filteredEmployees.set(result);
   }
 }
