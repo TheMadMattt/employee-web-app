@@ -27,5 +27,13 @@ export const translations: Translations = {
   SAVING: 'Zapisywanie...',
   SAVE: 'Zapisz zmiany',
   MALE: 'Mężczyzna',
-  FEMALE: 'Kobieta'
+  FEMALE: 'Kobieta',
+  ERROR_LOADING_EMPLOYEES: 'Wystąpił błąd podczas ładowania pracowników',
+  ERROR_DELETING_EMPLOYEE: 'Wystąpił błąd podczas usuwania pracownika',
+  ERROR_ADDING_EMPLOYEE: 'Wystąpił błąd podczas dodawania pracownika',
+  ERROR_EDITING_EMPLOYEE: 'Wystąpił błąd podczas edytowania pracownika',
+  EMPLOYEE_NOT_FOUND: 'Nie znaleziono pracownika o podanym numerze ewidencyjnym',
+  REQUIRED_FIELD: 'To pole jest wymagane',
+  MIN_LENGTH: 'Minimalna długość znaków to ',
+  MAX_LENGTH: 'Maksymalna długość znaków to '
 };

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import {BehaviorSubject, map, Observable} from 'rxjs';
+import {BehaviorSubject, map, Observable, of, throwError} from 'rxjs';
 import {Employee, EmployeeFormData, Gender} from '../models/employee';
 
 @Injectable({
@@ -60,6 +60,10 @@ export class EmployeeService {
   }
 
   addEmployee(employeeData: EmployeeFormData): Observable<Employee> {
+    if (!employeeData.firstName?.trim() || !employeeData.lastName?.trim()) {
+      return throwError(() => new Error('First name and last name are required'));
+    }
+
     const newEmployee: Employee = {
       id: this.nextId++,
       registrationNumber: this.generateRegistrationNumber(),
@@ -71,14 +75,18 @@ export class EmployeeService {
     this.employees = [...this.employees, newEmployee];
     this.employeesSubject.next(this.employees);
 
-    return new BehaviorSubject(newEmployee).asObservable();
+    return of(newEmployee);
   }
 
   updateEmployee(id: number, employeeData: EmployeeFormData): Observable<Employee | null> {
+    if (!employeeData.firstName?.trim() || !employeeData.lastName?.trim()) {
+      return throwError(() => new Error('First name and last name are required'));
+    }
+
     const index = this.employees.findIndex(emp => emp.id === id);
 
     if (index === -1) {
-      return new BehaviorSubject<null>(null).asObservable();
+      return throwError(() => new Error(`Employee with id ${id} not found`));
     }
 
     const updatedEmployee: Employee = {
@@ -96,14 +104,14 @@ export class EmployeeService {
 
     this.employeesSubject.next(this.employees);
 
-    return new BehaviorSubject(updatedEmployee).asObservable();
+    return of(updatedEmployee);
   }
 
   deleteEmployee(id: number): Observable<boolean> {
     const index = this.employees.findIndex(emp => emp.id === id);
 
     if (index === -1) {
-      return new BehaviorSubject(false).asObservable();
+      return of(false);
     }
 
     this.employees = [
@@ -113,7 +121,7 @@ export class EmployeeService {
 
     this.employeesSubject.next(this.employees);
 
-    return new BehaviorSubject(true).asObservable();
+    return of(true);
   }
 
   private generateRegistrationNumber(): string {

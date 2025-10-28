@@ -1,4 +1,4 @@
-import {Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, OnInit} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {EmployeeService} from '../../services/employee.service';
@@ -16,7 +16,8 @@ import {translations} from '../../../../shared/common/translations';
     TextInput
   ],
   templateUrl: './add-edit-employee.html',
-  styleUrl: './add-edit-employee.scss'
+  styleUrl: './add-edit-employee.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AddEditEmployee  implements OnInit {
   employeeForm!: FormGroup;
@@ -91,7 +92,7 @@ export class AddEditEmployee  implements OnInit {
             gender: employee.gender
           });
         } else {
-          alert('Nie znaleziono pracownika');
+          alert(this.t['EMPLOYEE_NOT_FOUND']);
           this.router.navigate(['/employees']);
         }
       });
@@ -116,12 +117,12 @@ export class AddEditEmployee  implements OnInit {
             if (employee) {
               this.router.navigate(['/employees']);
             } else {
-              alert('Błąd podczas aktualizacji pracownika');
+              alert(this.t['ERROR_UPDATING_EMPLOYEE']);
               this.isSubmitting = false;
             }
           },
           error: () => {
-            alert('Błąd podczas aktualizacji pracownika');
+            alert(this.t['ERROR_UPDATING_EMPLOYEE']);
             this.isSubmitting = false;
           }
         });
@@ -133,7 +134,7 @@ export class AddEditEmployee  implements OnInit {
             this.router.navigate(['/employees']);
           },
           error: () => {
-            alert('Błąd podczas dodawania pracownika');
+            alert(this.t['ERROR_ADDING_EMPLOYEE']);
             this.isSubmitting = false;
           }
         });
@@ -141,13 +142,7 @@ export class AddEditEmployee  implements OnInit {
   }
 
   onCancel(): void {
-    if (this.employeeForm.dirty) {
-      if (confirm('Masz niezapisane zmiany. Czy na pewno chcesz anulować?')) {
-        this.router.navigate(['/employees']);
-      }
-    } else {
-      this.router.navigate(['/employees']);
-    }
+    this.router.navigate(['/employees']);
   }
 
   getErrorMessage(fieldName: string): string {
@@ -158,15 +153,15 @@ export class AddEditEmployee  implements OnInit {
     }
 
     if (control.errors['required']) {
-      return 'To pole jest wymagane';
+      return this.t['REQUIRED_FIELD'];
     }
 
     if (control.errors['minlength']) {
-      return `Minimalna długość to ${control.errors['minlength'].requiredLength} znak`;
+      return this.t['MIN_LENGTH']+`${control.errors['minlength'].requiredLength}`;
     }
 
     if (control.errors['maxlength']) {
-      return `Maksymalna długość to ${control.errors['maxlength'].requiredLength} znaków`;
+      return this.t['MAX_LENGTH']+`${control.errors['maxlength'].requiredLength}`;
     }
 
     return '';

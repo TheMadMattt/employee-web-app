@@ -1,10 +1,11 @@
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {Employee, GENDER_LABELS} from '../../models/employee';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {EmployeeService} from '../../services/employee.service';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {translations} from '../../../../shared/common/translations';
+import {delay, finalize} from 'rxjs';
 
 type SortField = 'registrationNumber' | 'firstName' | 'lastName' | 'gender';
 type SortDirection = 'asc' | 'desc';
@@ -16,7 +17,8 @@ type SortDirection = 'asc' | 'desc';
     RouterLink
   ],
   templateUrl: './employees.html',
-  styleUrl: './employees.scss'
+  styleUrl: './employees.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class Employees implements OnInit {
   employees: Employee[] = [];
@@ -35,6 +37,8 @@ export class Employees implements OnInit {
   sortField: SortField = 'registrationNumber';
   sortDirection: SortDirection = 'asc';
   t = translations;
+  isLoading = signal<boolean>(false);
+  errorMessage = signal<string | null>(null);
 
   readonly genderLabels = GENDER_LABELS;
   private destroyRef = inject(DestroyRef);
@@ -43,11 +47,23 @@ export class Employees implements OnInit {
   }
 
   ngOnInit(): void {
+    this.isLoading.set(true);
+    this.errorMessage.set(null);
+
     this.employeeService.getEmployees()
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(employees => {
-        this.employees = employees;
-        this.applyFiltersAndSort();
+      .pipe(
+        delay(1000),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe({
+        next: (employees) => {
+          this.employees = employees;
+          this.applyFiltersAndSort();
+          this.isLoading.set(false);
+        },
+        error: (error) => {
+          this.errorMessage.set(error.message || this.t['ERROR_LOADING_EMPLOYEES']);
+        }
       });
   }
 
@@ -74,7 +90,16 @@ export class Employees implements OnInit {
     if (confirm(this.t['DELETE_EMPLOYEE_QUESTION']+`${employee.firstName} ${employee.lastName}?`)) {
       this.employeeService.deleteEmployee(employee.id)
         .pipe(takeUntilDestroyed(this.destroyRef))
-        .subscribe();
+        .subscribe({
+          next: (success) => {
+            if (!success) {
+              this.errorMessage.set(this.t['ERROR_DELETING_EMPLOYEE']);
+            }
+          },
+          error: (error) => {
+            this.errorMessage.set(error.message || this.t['ERROR_DELETING_EMPLOYEE']);
+          }
+        });
     }
   }
 
