@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import {BehaviorSubject, map, Observable, of, throwError} from 'rxjs';
-import {Employee, EmployeeFormData, Gender} from '../models/employee';
+import {Employee, EmployeeFormData, Gender} from '../../../shared/models/employee';
 
 @Injectable({
   providedIn: 'root'

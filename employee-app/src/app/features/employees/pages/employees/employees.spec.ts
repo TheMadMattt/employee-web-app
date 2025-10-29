@@ -2,7 +2,7 @@ import { ComponentFixture, fakeAsync, TestBed, tick } from '@angular/core/testin
 import { Employees } from './employees';
 import { EmployeeService } from '../../services/employee.service';
 import { of, throwError } from 'rxjs';
-import { Gender } from '../../models/employee';
+import { Gender } from '../../../../shared/models/employee';
 import { provideRouter } from '@angular/router';
 
 describe('Employees', () => {

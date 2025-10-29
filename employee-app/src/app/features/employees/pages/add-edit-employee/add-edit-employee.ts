@@ -4,7 +4,7 @@ import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/
 import {EmployeeService} from '../../services/employee.service';
 import {Subject} from 'rxjs';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
-import {Gender, GENDER_LABELS} from '../../models/employee';
+import {Gender, GENDER_LABELS} from '../../../../shared/models/employee';
 import {TextInput} from '../../../../shared/inputs/text-input/text-input';
 import {translations} from '../../../../shared/common/translations';
 

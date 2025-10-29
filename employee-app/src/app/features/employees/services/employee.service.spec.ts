@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { EmployeeService } from './employee.service';
-import { Gender } from '../models/employee';
+import { Gender } from '../../../shared/models/employee';
 
 describe('EmployeeService', () => {
   let service: EmployeeService;

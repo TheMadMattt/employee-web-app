@@ -1,4 +1,4 @@
-import {translations} from '../../../shared/common/translations';
+import {translations} from '../common/translations';
 
 export enum Gender {
   MALE = 'MALE',

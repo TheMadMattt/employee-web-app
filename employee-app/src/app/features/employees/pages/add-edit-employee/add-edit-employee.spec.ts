@@ -3,14 +3,13 @@ import { AddEditEmployee } from './add-edit-employee';
 import { EmployeeService } from '../../services/employee.service';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
-import { Gender } from '../../models/employee';
+import { Gender } from '../../../../shared/models/employee';
 
 describe('AddEditEmployee', () => {
   let component: AddEditEmployee;
   let fixture: ComponentFixture<AddEditEmployee>;
   let employeeService: jasmine.SpyObj<EmployeeService>;
   let router: Router;
-  let routeId: string | null;
 
   const mockEmployee = {
     id: 1,
@@ -27,22 +26,10 @@ describe('AddEditEmployee', () => {
       'updateEmployee'
     ]);
 
-    routeId = null;
-    const paramMapSpy = jasmine.createSpyObj('ParamMap', ['get']);
-    paramMapSpy.get.and.callFake((key: string) => routeId);
-
     await TestBed.configureTestingModule({
       imports: [AddEditEmployee],
       providers: [
         { provide: EmployeeService, useValue: employeeServiceSpy },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              paramMap: paramMapSpy
-            }
-          }
-        },
         provideRouter([])
       ]
     })
@@ -55,7 +42,6 @@ describe('AddEditEmployee', () => {
 
   describe('Add mode', () => {
     beforeEach(() => {
-      routeId = null;
       fixture = TestBed.createComponent(AddEditEmployee);
       component = fixture.componentInstance;
       fixture.detectChanges();
@@ -91,7 +77,6 @@ describe('AddEditEmployee', () => {
 
   describe('Form submission - Add mode', () => {
     beforeEach(() => {
-      routeId = null;
       employeeService.addEmployee.and.returnValue(of(mockEmployee));
       fixture = TestBed.createComponent(AddEditEmployee);
       component = fixture.componentInstance;
@@ -194,7 +179,6 @@ describe('AddEditEmployee', () => {
 
   describe('Cancel functionality', () => {
     beforeEach(() => {
-      routeId = null;
       fixture = TestBed.createComponent(AddEditEmployee);
       component = fixture.componentInstance;
       fixture.detectChanges();

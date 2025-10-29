@@ -1,5 +1,5 @@
 import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {Employee, GENDER_LABELS} from '../../models/employee';
+import {Employee, GENDER_LABELS} from '../../../../shared/models/employee';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {EmployeeService} from '../../services/employee.service';
 import {FormsModule} from '@angular/forms';
