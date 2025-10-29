@@ -1,11 +1,12 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {Employee, GENDER_LABELS} from '../../../../shared/models/employee';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {EmployeeService} from '../../services/employee.service';
 import {FormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {translations} from '../../../../shared/common/translations';
-import {delay, finalize} from 'rxjs';
+import {delay} from 'rxjs';
+import {NotificationService} from '../../../../shared/services/notification';
 
 type SortField = 'registrationNumber' | 'firstName' | 'lastName' | 'gender';
 type SortDirection = 'asc' | 'desc';
@@ -47,6 +48,7 @@ export class Employees implements OnInit {
 
   readonly genderLabels = GENDER_LABELS;
   private destroyRef = inject(DestroyRef);
+  private notificationService = inject(NotificationService);
 
   constructor(private employeeService: EmployeeService) {
   }
@@ -92,17 +94,21 @@ export class Employees implements OnInit {
   }
 
   onDelete(employee: Employee): void {
-    if (confirm(this.t['DELETE_EMPLOYEE_QUESTION']+`${employee.firstName} ${employee.lastName}?`)) {
+    const employeeName = `${employee.firstName} ${employee.lastName}`;
+    const message = this.t['DELETE_EMPLOYEE_QUESTION'].replace('{0}', employeeName);
+    if (this.notificationService.confirm(message)) {
       this.employeeService.deleteEmployee(employee.id)
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: (success) => {
-            if (!success) {
-              this.errorMessage.set(this.t['ERROR_DELETING_EMPLOYEE']);
+            if (success) {
+              this.notificationService.success(this.t['SUCCESS_DELETING_EMPLOYEE']);
+            } else {
+              this.notificationService.error(this.t['ERROR_DELETING_EMPLOYEE']);
             }
           },
           error: (error) => {
-            this.errorMessage.set(error.message || this.t['ERROR_DELETING_EMPLOYEE']);
+            this.notificationService.error(error.message || this.t['ERROR_DELETING_EMPLOYEE']);
           }
         });
     }
@@ -127,10 +133,10 @@ export class Employees implements OnInit {
           compareValue = a.registrationNumber.localeCompare(b.registrationNumber);
           break;
         case 'firstName':
-          compareValue = a.firstName.localeCompare(b.firstName);
+          compareValue = a.firstName.toLowerCase().localeCompare(b.firstName.toLowerCase(), 'pl');
           break;
         case 'lastName':
-          compareValue = a.lastName.localeCompare(b.lastName);
+          compareValue = a.lastName.toLowerCase().localeCompare(b.lastName.toLowerCase(), 'pl');
           break;
         case 'gender':
           compareValue = a.gender.localeCompare(b.gender);

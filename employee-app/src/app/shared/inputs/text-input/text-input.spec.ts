@@ -30,7 +30,7 @@ describe('TextInput', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TextInput]
+      imports: [TextInput, ReactiveFormsModule]
     })
     .compileComponents();
 
@@ -38,7 +38,7 @@ describe('TextInput', () => {
     component = fixture.componentInstance;
     component.id = 'test';
     component.label = 'Test Label';
-    fixture.detectChanges();
+    // Don't call detectChanges() yet as component needs FormControl
   });
 
   it('should create', () => {
@@ -158,6 +158,7 @@ describe('TextInput', () => {
     it('should have default empty placeholder', () => {
       const newFixture = TestBed.createComponent(TextInput);
       const newComponent = newFixture.componentInstance;
+      // Don't call detectChanges() as it would throw without FormControl
 
       expect(newComponent.placeholder).toBe('');
     });
@@ -171,6 +172,7 @@ describe('TextInput', () => {
     it('should have default required as false', () => {
       const newFixture = TestBed.createComponent(TextInput);
       const newComponent = newFixture.componentInstance;
+      // Don't call detectChanges() as it would throw without FormControl
 
       expect(newComponent.required).toBe(false);
     });

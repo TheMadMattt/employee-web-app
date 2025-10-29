@@ -4,7 +4,7 @@ export interface Translations {
 
 export const translations: Translations = {
   APP_TITLE: 'System Zarządzania Pracownikami',
-  DELETE_EMPLOYEE_QUESTION: 'Czy na pewno chcesz usunąć pracownika ',
+  DELETE_EMPLOYEE_QUESTION: 'Czy na pewno chcesz usunąć pracownika {0}?',
   EMPLOYEE_LIST: 'Lista Pracowników',
   ADD_EMPLOYEE: 'Dodaj pracownika',
   ADD_NEW_EMPLOYEE: 'Dodaj nowego pracownika',
@@ -35,5 +35,6 @@ export const translations: Translations = {
   EMPLOYEE_NOT_FOUND: 'Nie znaleziono pracownika o podanym numerze ewidencyjnym',
   REQUIRED_FIELD: 'To pole jest wymagane',
   MIN_LENGTH: 'Minimalna długość znaków to ',
-  MAX_LENGTH: 'Maksymalna długość znaków to '
+  MAX_LENGTH: 'Maksymalna długość znaków to ',
+  SUCCESS_DELETING_EMPLOYEE: 'Pomyślnie usunięto pracownika',
 };

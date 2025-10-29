@@ -1,0 +1,23 @@
+<div class="notification-container">
+  @for (notification of notifications(); track notification.id) {
+    <div class="notification" [class]="'notification-' + notification.type">
+      <div class="notification-content">
+        <span class="notification-icon">
+          @switch (notification.type) {
+            @case ('success') { ✓ }
+            @case ('error') { ✕ }
+            @case ('warning') { ⚠ }
+            @case ('info') { ℹ }
+          }
+        </span>
+        <span class="notification-message">{{ notification.message }}</span>
+      </div>
+      <button
+        class="notification-close"
+        (click)="onClose(notification.id)"
+        aria-label="Zamknij powiadomienie">
+        ✕
+      </button>
+    </div>
+  }
+</div>

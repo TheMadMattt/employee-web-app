@@ -4,11 +4,13 @@ import { EmployeeService } from '../../services/employee.service';
 import { of, throwError } from 'rxjs';
 import { Gender } from '../../../../shared/models/employee';
 import { provideRouter } from '@angular/router';
+import { NotificationService } from '../../../../shared/services/notification';
 
 describe('Employees', () => {
   let component: Employees;
   let fixture: ComponentFixture<Employees>;
   let employeeService: jasmine.SpyObj<EmployeeService>;
+  let notificationService: jasmine.SpyObj<NotificationService>;
 
   const mockEmployees = [
     { id: 1, registrationNumber: '00000001', firstName: 'Jan', lastName: 'Kowalski', gender: Gender.MALE },
@@ -18,17 +20,24 @@ describe('Employees', () => {
 
   beforeEach(async () => {
     const employeeServiceSpy = jasmine.createSpyObj('EmployeeService', ['getEmployees', 'deleteEmployee']);
+    const notificationServiceSpy = jasmine.createSpyObj('NotificationService', [
+      'success',
+      'error',
+      'confirm'
+    ]);
 
     await TestBed.configureTestingModule({
       imports: [Employees],
       providers: [
         { provide: EmployeeService, useValue: employeeServiceSpy },
+        { provide: NotificationService, useValue: notificationServiceSpy },
         provideRouter([])
       ]
     })
     .compileComponents();
 
     employeeService = TestBed.inject(EmployeeService) as jasmine.SpyObj<EmployeeService>;
+    notificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
     fixture = TestBed.createComponent(Employees);
     component = fixture.componentInstance;
   });
@@ -206,7 +215,7 @@ describe('Employees', () => {
     }));
 
     it('should call deleteEmployee when user confirms', () => {
-      spyOn(window, 'confirm').and.returnValue(true);
+      notificationService.confirm.and.returnValue(true);
       employeeService.deleteEmployee.and.returnValue(of(true));
 
       component.onDelete(mockEmployees[0]);
@@ -215,31 +224,31 @@ describe('Employees', () => {
     });
 
     it('should not call deleteEmployee when user cancels', () => {
-      spyOn(window, 'confirm').and.returnValue(false);
+      notificationService.confirm.and.returnValue(false);
 
       component.onDelete(mockEmployees[0]);
 
       expect(employeeService.deleteEmployee).not.toHaveBeenCalled();
     });
 
-    it('should set error message when delete fails', fakeAsync(() => {
-      spyOn(window, 'confirm').and.returnValue(true);
+    it('should show error notification when delete fails', fakeAsync(() => {
+      notificationService.confirm.and.returnValue(true);
       employeeService.deleteEmployee.and.returnValue(of(false));
 
       component.onDelete(mockEmployees[0]);
       tick();
 
-      expect(component.errorMessage()).toBeTruthy();
+      expect(notificationService.error).toHaveBeenCalled();
     }));
 
     it('should handle error when delete throws', fakeAsync(() => {
-      spyOn(window, 'confirm').and.returnValue(true);
+      notificationService.confirm.and.returnValue(true);
       employeeService.deleteEmployee.and.returnValue(throwError(() => new Error('Delete failed')));
 
       component.onDelete(mockEmployees[0]);
       tick();
 
-      expect(component.errorMessage()).toBe('Delete failed');
+      expect(notificationService.error).toHaveBeenCalled();
     }));
   });
 

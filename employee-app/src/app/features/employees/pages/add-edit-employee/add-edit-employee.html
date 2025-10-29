@@ -62,7 +62,11 @@
             (click)="onSubmit()"
             class="btn btn-primary"
             [disabled]="isSubmitting"
+            [class.btn-loading]="isSubmitting"
           >
+            @if (isSubmitting) {
+              <span class="spinner"></span>
+            }
             {{ isSubmitting ? t['SAVING'] : (isEditMode() ? t['SAVE'] : t['ADD_EMPLOYEE']) }}
           </button>
         </div>

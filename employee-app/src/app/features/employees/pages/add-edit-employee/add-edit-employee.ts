@@ -1,12 +1,12 @@
-import {ChangeDetectionStrategy, Component, computed, DestroyRef, effect, inject, OnDestroy, OnInit, signal} from '@angular/core';
+import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {EmployeeService} from '../../services/employee.service';
-import {Subject} from 'rxjs';
 import {ActivatedRoute, Router, RouterLink} from '@angular/router';
 import {Gender, GENDER_LABELS} from '../../../../shared/models/employee';
 import {TextInput} from '../../../../shared/inputs/text-input/text-input';
 import {translations} from '../../../../shared/common/translations';
+import {NotificationService} from '../../../../shared/services/notification';
 
 @Component({
   selector: 'app-add-edit-employee',
@@ -38,6 +38,7 @@ export class AddEditEmployee  implements OnInit {
   });
 
   private destroyRef = inject(DestroyRef);
+  private notificationService = inject(NotificationService);
 
   constructor(
     private fb: FormBuilder,
@@ -90,7 +91,7 @@ export class AddEditEmployee  implements OnInit {
             gender: employee.gender
           });
         } else {
-          alert(this.t['EMPLOYEE_NOT_FOUND']);
+          this.notificationService.error(this.t['EMPLOYEE_NOT_FOUND']);
           this.router.navigate(['/employees']);
         }
       });
@@ -111,14 +112,15 @@ export class AddEditEmployee  implements OnInit {
         .subscribe({
           next: (employee) => {
             if (employee) {
+              this.notificationService.success('Pomyślnie zaktualizowano pracownika');
               this.router.navigate(['/employees']);
             } else {
-              alert(this.t['ERROR_UPDATING_EMPLOYEE']);
+              this.notificationService.error(this.t['ERROR_UPDATING_EMPLOYEE']);
               this.isSubmitting = false;
             }
           },
           error: () => {
-            alert(this.t['ERROR_UPDATING_EMPLOYEE']);
+            this.notificationService.error(this.t['ERROR_UPDATING_EMPLOYEE']);
             this.isSubmitting = false;
           }
         });
@@ -127,10 +129,11 @@ export class AddEditEmployee  implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
+            this.notificationService.success('Pomyślnie dodano pracownika');
             this.router.navigate(['/employees']);
           },
           error: () => {
-            alert(this.t['ERROR_ADDING_EMPLOYEE']);
+            this.notificationService.error(this.t['ERROR_ADDING_EMPLOYEE']);
             this.isSubmitting = false;
           }
         });

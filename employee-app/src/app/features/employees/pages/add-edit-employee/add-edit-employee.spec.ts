@@ -4,11 +4,13 @@ import { EmployeeService } from '../../services/employee.service';
 import { ActivatedRoute, Router, provideRouter } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { Gender } from '../../../../shared/models/employee';
+import { NotificationService } from '../../../../shared/services/notification';
 
 describe('AddEditEmployee', () => {
   let component: AddEditEmployee;
   let fixture: ComponentFixture<AddEditEmployee>;
   let employeeService: jasmine.SpyObj<EmployeeService>;
+  let notificationService: jasmine.SpyObj<NotificationService>;
   let router: Router;
 
   const mockEmployee = {
@@ -26,16 +28,24 @@ describe('AddEditEmployee', () => {
       'updateEmployee'
     ]);
 
+    const notificationServiceSpy = jasmine.createSpyObj('NotificationService', [
+      'success',
+      'error',
+      'confirm'
+    ]);
+
     await TestBed.configureTestingModule({
       imports: [AddEditEmployee],
       providers: [
         { provide: EmployeeService, useValue: employeeServiceSpy },
+        { provide: NotificationService, useValue: notificationServiceSpy },
         provideRouter([])
       ]
     })
     .compileComponents();
 
     employeeService = TestBed.inject(EmployeeService) as jasmine.SpyObj<EmployeeService>;
+    notificationService = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
     router = TestBed.inject(Router);
     spyOn(router, 'navigate');
   });
@@ -162,7 +172,6 @@ describe('AddEditEmployee', () => {
     });
 
     it('should handle error when add fails', () => {
-      spyOn(window, 'alert');
       employeeService.addEmployee.and.returnValue(throwError(() => new Error('Add failed')));
       component.employeeForm.patchValue({
         firstName: 'Test',
@@ -172,7 +181,7 @@ describe('AddEditEmployee', () => {
 
       component.onSubmit();
 
-      expect(window.alert).toHaveBeenCalled();
+      expect(notificationService.error).toHaveBeenCalled();
       expect(component.isSubmitting).toBe(false);
     });
   });
@@ -228,12 +237,11 @@ describe('AddEditEmployee', () => {
     });
 
     it('should navigate to employees list when employee not found', () => {
-      spyOn(window, 'alert');
       employeeService.getEmployeeById.and.returnValue(of(undefined));
 
       component['loadEmployee']();
 
-      expect(window.alert).toHaveBeenCalledWith(component.t['EMPLOYEE_NOT_FOUND']);
+      expect(notificationService.error).toHaveBeenCalledWith(component.t['EMPLOYEE_NOT_FOUND']);
       expect(router.navigate).toHaveBeenCalledWith(['/employees']);
     });
   });
@@ -279,7 +287,6 @@ describe('AddEditEmployee', () => {
     });
 
     it('should handle error when employee update returns null', () => {
-      spyOn(window, 'alert');
       employeeService.updateEmployee.and.returnValue(of(null));
 
       component.employeeForm.patchValue({
@@ -290,12 +297,11 @@ describe('AddEditEmployee', () => {
 
       component.onSubmit();
 
-      expect(window.alert).toHaveBeenCalledWith(component.t['ERROR_UPDATING_EMPLOYEE']);
+      expect(notificationService.error).toHaveBeenCalledWith(component.t['ERROR_UPDATING_EMPLOYEE']);
       expect(component.isSubmitting).toBe(false);
     });
 
     it('should handle error when update fails', () => {
-      spyOn(window, 'alert');
       employeeService.updateEmployee.and.returnValue(throwError(() => new Error('Update failed')));
 
       component.employeeForm.patchValue({
@@ -306,7 +312,7 @@ describe('AddEditEmployee', () => {
 
       component.onSubmit();
 
-      expect(window.alert).toHaveBeenCalledWith(component.t['ERROR_UPDATING_EMPLOYEE']);
+      expect(notificationService.error).toHaveBeenCalledWith(component.t['ERROR_UPDATING_EMPLOYEE']);
       expect(component.isSubmitting).toBe(false);
     });
 
