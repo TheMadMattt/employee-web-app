@@ -190,4 +190,148 @@ describe('AddEditEmployee', () => {
       expect(router.navigate).toHaveBeenCalledWith(['/employees']);
     });
   });
+
+  describe('Edit mode', () => {
+    let activatedRoute: ActivatedRoute;
+
+    beforeEach(() => {
+      activatedRoute = TestBed.inject(ActivatedRoute);
+      employeeService.getEmployeeById.and.returnValue(of(mockEmployee));
+
+      spyOn(activatedRoute.snapshot.paramMap, 'get').and.returnValue('1');
+
+      fixture = TestBed.createComponent(AddEditEmployee);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    });
+
+    it('should set isEditMode to true when id parameter exists', () => {
+      expect(component.isEditMode()).toBe(true);
+    });
+
+    it('should set employeeId when id parameter exists', () => {
+      expect(component.employeeId).toBe(1);
+    });
+
+    it('should load employee data when in edit mode', () => {
+      expect(employeeService.getEmployeeById).toHaveBeenCalledWith(1);
+    });
+
+    it('should populate form with employee data', () => {
+      expect(component.employeeForm.get('firstName')?.value).toBe('Jan');
+      expect(component.employeeForm.get('lastName')?.value).toBe('Kowalski');
+      expect(component.employeeForm.get('gender')?.value).toBe(Gender.MALE);
+    });
+
+    it('should have correct title in edit mode', () => {
+      expect(component.title()).toBe(component.t['EDIT_EMPLOYEE']);
+    });
+
+    it('should navigate to employees list when employee not found', () => {
+      spyOn(window, 'alert');
+      employeeService.getEmployeeById.and.returnValue(of(undefined));
+
+      component['loadEmployee']();
+
+      expect(window.alert).toHaveBeenCalledWith(component.t['EMPLOYEE_NOT_FOUND']);
+      expect(router.navigate).toHaveBeenCalledWith(['/employees']);
+    });
+  });
+
+  describe('Form submission - Edit mode', () => {
+    let activatedRoute: ActivatedRoute;
+
+    beforeEach(() => {
+      activatedRoute = TestBed.inject(ActivatedRoute);
+      employeeService.getEmployeeById.and.returnValue(of(mockEmployee));
+      employeeService.updateEmployee.and.returnValue(of(mockEmployee));
+
+      spyOn(activatedRoute.snapshot.paramMap, 'get').and.returnValue('1');
+
+      fixture = TestBed.createComponent(AddEditEmployee);
+      component = fixture.componentInstance;
+      fixture.detectChanges();
+    });
+
+    it('should call updateEmployee when form is valid in edit mode', () => {
+      const updatedEmployee = {
+        firstName: 'Updated',
+        lastName: 'Name',
+        gender: Gender.FEMALE
+      };
+
+      component.employeeForm.patchValue(updatedEmployee);
+      component.onSubmit();
+
+      expect(employeeService.updateEmployee).toHaveBeenCalledWith(1, updatedEmployee);
+    });
+
+    it('should navigate to employees list after successful update', () => {
+      component.employeeForm.patchValue({
+        firstName: 'Updated',
+        lastName: 'Name',
+        gender: Gender.FEMALE
+      });
+
+      component.onSubmit();
+
+      expect(router.navigate).toHaveBeenCalledWith(['/employees']);
+    });
+
+    it('should handle error when employee update returns null', () => {
+      spyOn(window, 'alert');
+      employeeService.updateEmployee.and.returnValue(of(null));
+
+      component.employeeForm.patchValue({
+        firstName: 'Test',
+        lastName: 'User',
+        gender: Gender.MALE
+      });
+
+      component.onSubmit();
+
+      expect(window.alert).toHaveBeenCalledWith(component.t['ERROR_UPDATING_EMPLOYEE']);
+      expect(component.isSubmitting).toBe(false);
+    });
+
+    it('should handle error when update fails', () => {
+      spyOn(window, 'alert');
+      employeeService.updateEmployee.and.returnValue(throwError(() => new Error('Update failed')));
+
+      component.employeeForm.patchValue({
+        firstName: 'Test',
+        lastName: 'User',
+        gender: Gender.MALE
+      });
+
+      component.onSubmit();
+
+      expect(window.alert).toHaveBeenCalledWith(component.t['ERROR_UPDATING_EMPLOYEE']);
+      expect(component.isSubmitting).toBe(false);
+    });
+
+    it('should not submit when form is invalid in edit mode', () => {
+      component.employeeForm.patchValue({
+        firstName: '',
+        lastName: '',
+        gender: Gender.MALE
+      });
+
+      component.onSubmit();
+
+      expect(employeeService.updateEmployee).not.toHaveBeenCalled();
+    });
+
+    it('should set isSubmitting flag during update', () => {
+      component.employeeForm.patchValue({
+        firstName: 'Updated',
+        lastName: 'Name',
+        gender: Gender.FEMALE
+      });
+
+      component.onSubmit();
+
+      expect(component.isSubmitting).toBe(true);
+    });
+  });
 });
