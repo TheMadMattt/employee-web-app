@@ -37,4 +37,6 @@ export const translations: Translations = {
   MIN_LENGTH: 'Minimalna długość znaków to ',
   MAX_LENGTH: 'Maksymalna długość znaków to ',
   SUCCESS_DELETING_EMPLOYEE: 'Pomyślnie usunięto pracownika',
+  SUCCESS_UPDATING_EMPLOYEE: 'Pomyślnie zaktualizowano pracownika',
+  SUCCESS_ADDING_EMPLOYEE: 'Pomyślnie dodano pracownika',
 };

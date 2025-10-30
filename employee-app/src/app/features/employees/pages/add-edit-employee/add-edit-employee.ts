@@ -112,7 +112,7 @@ export class AddEditEmployee  implements OnInit {
         .subscribe({
           next: (employee) => {
             if (employee) {
-              this.notificationService.success('Pomyślnie zaktualizowano pracownika');
+              this.notificationService.success(this.t['SUCCESS_UPDATING_EMPLOYEE']);
               this.router.navigate(['/employees']);
             } else {
               this.notificationService.error(this.t['ERROR_UPDATING_EMPLOYEE']);
@@ -129,7 +129,7 @@ export class AddEditEmployee  implements OnInit {
         .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe({
           next: () => {
-            this.notificationService.success('Pomyślnie dodano pracownika');
+            this.notificationService.success(this.t['SUCCESS_ADDING_EMPLOYEE']);
             this.router.navigate(['/employees']);
           },
           error: () => {
